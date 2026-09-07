@@ -25,6 +25,10 @@ clogan/cmake-build-debug
 
 **/.idea/*
 **/node_modules/*
+**/oh_modules/*
+**/.hvigor/*
+**/.cxx/*
+**/BuildProfile.ets
 
 Carthage
 # We recommend against adding the Pods directory to your .gitignore. However

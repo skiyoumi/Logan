@@ -25,7 +25,12 @@ import {
 import {getPageOfLogIdsBySingleLogId} from "../../../common/util";
 import {convertBriefsToLoglistInfiniteScrollBriefs} from "../../../common/adapter";
 
-
+function fetchTaskDetails(detailIds) {
+  if (!detailIds || detailIds.length === 0) {
+    return Promise.resolve([]);
+  }
+  return fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(","));
+}
 
 export function fetchPageInitData(taskId, focusLogId) {
   return (dispatch, getState) => {
@@ -48,7 +53,7 @@ export function fetchPageInitData(taskId, focusLogId) {
         return Promise.all([infoData, logTypeData, briefData, detailIds])
       })
       .then(([infoData, logTypeData, briefData,detailIds]) => {
-        return Promise.all([infoData, logTypeData, briefData, fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(','))])
+        return Promise.all([infoData, logTypeData, briefData, fetchTaskDetails(detailIds)])
       })
       .then(([infoData, logTypeData, briefData, detailData]) => {
         const logTypeInTask = [...new Set(briefData.map(brief => brief.logType))];
@@ -104,7 +109,7 @@ export function updateFocusLogId(focusLogId) {
 
       // 查找新的focusLogId是否已经从服务器加载，如果已加载，则忽略，如果未加载，则加载。
       if (taskDetails.find(item => item.id === focusLogId) === undefined) {
-        return fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(","))
+        return fetchTaskDetails(detailIds)
           .then(data => {
             dispatch({
               type: NATIVE_UPDATE_TASK_DETAIL,
@@ -162,7 +167,7 @@ export function updateFilterConditions(filterConditions) {
           return newBriefs;
         })
         .then(newBriefs => {
-          return fetchNativeTaskDetailsByDetailIdsApi(newBriefs.map(item => item.id).join(","));
+          return fetchTaskDetails(newBriefs.map(item => item.id));
         })
         .then(data => {
           dispatch({
@@ -198,7 +203,7 @@ export function fetchDownloadUrl(taskId) {
 
 export function fetchTaskDetail(detailIds, direction) {
   return (dispatch) => {
-    return fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(","))
+    return fetchTaskDetails(detailIds)
       .then(data => {
         dispatch({
           type: NATIVE_UPDATE_TASK_DETAIL,
@@ -236,10 +241,15 @@ export function updateSorted(sorted) {
             sortedBriefs = sortBy(newBriefs, item => item.id);
             sortedBriefs = reverse(sortedBriefs);
           }
-          const detailIds = getPageOfLogIdsBySingleLogId(convertBriefsToLoglistInfiniteScrollBriefs(sortedBriefs, "native"), sortedBriefs[0].id);
+          const detailIds = sortedBriefs.length > 0
+            ? getPageOfLogIdsBySingleLogId(
+              convertBriefsToLoglistInfiniteScrollBriefs(sortedBriefs, "native"),
+              sortedBriefs[0].id
+            )
+            : [];
           return Promise.all([detailIds, sortedBriefs]);
         }).then(([detailIds, sortedBriefs]) => {
-          return Promise.all([sortedBriefs, fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(","))])
+          return Promise.all([sortedBriefs, fetchTaskDetails(detailIds)])
         }).then(([sortedBriefs, data]) => {
           dispatch({
             type: NATIVE_UPDATE_BRIEFS,

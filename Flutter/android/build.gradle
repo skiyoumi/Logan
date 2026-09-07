@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -15,14 +15,15 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 35
 
     defaultConfig {
         minSdkVersion 16
@@ -31,8 +32,14 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+    // Conditional for compatibility with AGP <4.2.
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.meituan.flutter_logan'
+    }
 }
 
 dependencies {
-    implementation 'com.dianping.android.sdk:logan:1.2.2'
+    implementation 'com.dianping.android.sdk:logan:1.2.4'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
 }

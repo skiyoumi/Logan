@@ -1,0 +1,11 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "Logan HarmonyOS sample application",
+  "main": "",
+  "author": "Meituan-Dianping",
+  "license": "MIT",
+  "dependencies": {
+    "@logan/harmonyos": "file:../../../Logan/HarmonyOS"
+  }
+}

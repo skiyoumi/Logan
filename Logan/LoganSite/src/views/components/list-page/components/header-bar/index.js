@@ -23,6 +23,10 @@ class HeaderBar extends Component {
   static defaultProps = {
     filterConditions: {
       deviceId: "",
+      appId: "",
+      appVersion: "",
+      taskId: "",
+      unionId: "",
       platform: 0,
       beginTime: moment().startOf("week"),
       endTime: moment().startOf("day")
@@ -48,6 +52,7 @@ class HeaderBar extends Component {
                 <Option value={0}>全部平台</Option>
                 <Option value={1}>Android</Option>
                 <Option value={2}>iOS</Option>
+                <Option value={3}>HarmonyOS</Option>
               </Select>
             }
             <RangePicker
@@ -79,6 +84,15 @@ class HeaderBar extends Component {
                 )
               }
             />
+            {
+              type === "native" &&
+              <React.Fragment>
+                {this.renderFilterInput("appId", "AppId")}
+                {this.renderFilterInput("appVersion", "AppVersion")}
+                {this.renderFilterInput("taskId", "任务Id")}
+                {this.renderFilterInput("unionId", "unionId")}
+              </React.Fragment>
+            }
           </Input.Group>
           <Button data-test="search-button" icon="search" type="primary" onClick={this.handleSearch}>
             搜索
@@ -92,7 +106,17 @@ class HeaderBar extends Component {
   composeShareUrl = () => {
     const {filterConditions, type, pathname} = this.props;
     if (type === "native") {
-      return `${window.location.origin}/#${pathname}?deviceId=${filterConditions.deviceId}&beginTime=${moment(filterConditions.beginTime).valueOf()}&endTime=${moment(filterConditions.endTime).valueOf()}&platform=${filterConditions.platform}`
+      const query = new URLSearchParams({
+        deviceId: filterConditions.deviceId || "",
+        appId: filterConditions.appId || "",
+        appVersion: filterConditions.appVersion || "",
+        taskId: filterConditions.taskId || "",
+        unionId: filterConditions.unionId || "",
+        beginTime: moment(filterConditions.beginTime).valueOf(),
+        endTime: moment(filterConditions.endTime).valueOf(),
+        platform: filterConditions.platform
+      });
+      return `${window.location.origin}/#${pathname}?${query.toString()}`
     } else {
       return `${window.location.origin}/#${pathname}?deviceId=${filterConditions.deviceId}&beginTime=${moment(filterConditions.beginTime).valueOf()}&endTime=${moment(filterConditions.endTime).valueOf()}`
     }
@@ -101,17 +125,16 @@ class HeaderBar extends Component {
   // event handlers
   handleSearch = () => {
     const { filterConditions, fetchTasks, type } = this.props;
-    if (filterConditions.deviceId === "") {
+    if (type === "web" && filterConditions.deviceId === "") {
       message.error("必须填写设备编号才能进行查询！");
       return;
     }
+    if (type === "native" && filterConditions.taskId && !/^[1-9]\d*$/.test(filterConditions.taskId)) {
+      message.error("任务Id 必须是正整数！");
+      return;
+    }
     if (type === "native") {
-      fetchTasks({
-        deviceId: filterConditions.deviceId,
-        platform: filterConditions.platform,
-        beginTime: moment(filterConditions.beginTime).valueOf(),
-        endTime: moment(filterConditions.endTime).valueOf()
-      });
+      this.fetchNativeTasks(filterConditions);
     } else {
       fetchTasks({
         deviceId: filterConditions.deviceId,
@@ -120,6 +143,19 @@ class HeaderBar extends Component {
       })
     }
 
+  };
+
+  fetchNativeTasks = filterConditions => {
+    this.props.fetchTasks({
+      deviceId: filterConditions.deviceId,
+      appId: filterConditions.appId,
+      appVersion: filterConditions.appVersion,
+      taskId: filterConditions.taskId,
+      unionId: filterConditions.unionId,
+      platform: filterConditions.platform,
+      beginTime: moment(filterConditions.beginTime).valueOf(),
+      endTime: moment(filterConditions.endTime).valueOf()
+    });
   };
 
   handleDeviceIdChange = e => {
@@ -140,13 +176,46 @@ class HeaderBar extends Component {
     });
   };
 
-  handlePlatformChange = value => {
-    const { filterConditions, updateFilterConditions } = this.props;
+  renderFilterInput = (key, placeholder) => {
+    const { filterConditions } = this.props;
+    return (
+      <Input
+        data-test={`${key}-input`}
+        className="filter-input"
+        placeholder={placeholder}
+        value={filterConditions[key]}
+        onChange={e => this.handleFilterChange(key, e.target.value)}
+        suffix={filterConditions[key] ? (
+          <Icon
+            data-test={`clean-${key}-icon`}
+            className="empty-search"
+            type="close-circle"
+            onClick={() => this.handleFilterChange(key, "")}
+          />
+        ) : <span />}
+      />
+    );
+  };
 
+  handleFilterChange = (key, value) => {
+    const { filterConditions, updateFilterConditions } = this.props;
     updateFilterConditions({
       ...filterConditions,
-      platform: value
+      [key]: value
     });
+  };
+
+  handlePlatformChange = value => {
+    const { filterConditions, updateFilterConditions, type } = this.props;
+    const nextFilterConditions = {
+      ...filterConditions,
+      platform: value
+    };
+
+    updateFilterConditions(nextFilterConditions);
+    if (type === "native") {
+      this.fetchNativeTasks(nextFilterConditions);
+    }
   };
 
   handleTimeRangeChange = value => {

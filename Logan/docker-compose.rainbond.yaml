@@ -1,0 +1,69 @@
+version: "3.7"
+
+services:
+  backend:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:backend-v1
+    restart: always
+    depends_on:
+      - db
+      - db-migrate
+    ports:
+      - "8080"
+    volumes:
+      - backend-log:/usr/local/tomcat/logfile
+
+  db:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:mysql-8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: "logan"
+      MYSQL_USER: "logan"
+      MYSQL_PASSWORD: "logan"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  db-migrate:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:migrate-logan-v1
+    restart: "no"
+    depends_on:
+      - db
+    command:
+      - "-source"
+      - "file:///etc/migrations"
+      - "-database"
+      - "mysql://logan:logan@tcp(db:3306)/logan"
+      - "up"
+
+  phpmyadmin:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:phpmyadmin-5.2
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: "db"
+      PMA_PORT: "3306"
+      PMA_USER: "logan"
+      PMA_PASSWORD: "logan"
+    expose:
+      - "80"
+
+  frontend:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:frontend-v1
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80"
+
+volumes:
+  mysql-data:
+  backend-log:

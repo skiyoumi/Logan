@@ -1,0 +1,12 @@
+{
+  "name": "flutter_logan",
+  "version": "1.1.0",
+  "description": "HarmonyOS implementation of the Flutter Logan plugin",
+  "main": "Index.ets",
+  "author": "Meituan-Dianping",
+  "license": "MIT",
+  "dependencies": {
+    "@ohos/flutter_ohos": "file:./har/flutter.har",
+    "@ohos/logan": "1.0.0"
+  }
+}

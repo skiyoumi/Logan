@@ -106,9 +106,20 @@ class LogDetailPage extends Component {
   handleBackToListButtonClicked = () => {
     const { type, history, nativeListFilterConditions, webListFilterConditions } = this.props;
     if (type === "native") {
-      const { deviceId, platform, beginTime, endTime } = nativeListFilterConditions;
-      if (((!isEmpty(deviceId) && !isNil(deviceId)) && !isNil(platform) && !isNil(beginTime) && !isNil(endTime))) {
-        history.push(`/native-list?deviceId=${deviceId}&beginTime=${beginTime}&endTime=${endTime}&platform=${platform}`)
+      const { deviceId, appId, appVersion, taskId, unionId, platform, beginTime, endTime } = nativeListFilterConditions;
+      const hasFilter = [deviceId, appId, appVersion, taskId, unionId].some(value => !isEmpty(value) && !isNil(value));
+      if (hasFilter && !isNil(platform) && !isNil(beginTime) && !isNil(endTime)) {
+        const query = new URLSearchParams({
+          deviceId: deviceId || "",
+          appId: appId || "",
+          appVersion: appVersion || "",
+          taskId: taskId || "",
+          unionId: unionId || "",
+          beginTime,
+          endTime,
+          platform
+        });
+        history.push(`/native-list?${query.toString()}`)
       } else {
         history.push("/native-list")
       }

@@ -1,6 +1,7 @@
 package com.meituan.logan.web.dto;
 
 import com.meituan.logan.web.model.LoganTaskModel;
+import com.meituan.logan.web.parser.RequestContextParser;
 import lombok.Data;
 
 import java.util.Date;
@@ -54,7 +55,7 @@ public class LoganTaskDTO implements Comparable<LoganTaskDTO> {
         result.setTaskId(id);
         result.setAmount(amount);
         result.setAppId(appId);
-        result.setUnionId(unionId);
+        result.setUnionId(RequestContextParser.decodeHeaderValue(unionId));
         result.setBuildVersion(buildVersion);
         result.setAppVersion(appVersion);
         result.setDeviceId(deviceId);

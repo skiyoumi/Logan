@@ -1,0 +1,9 @@
+{
+  "name": "@logan/harmonyos",
+  "version": "1.0.0",
+  "description": "Logan client SDK for HarmonyOS",
+  "main": "Index.ets",
+  "author": "Meituan-Dianping",
+  "license": "MIT",
+  "dependencies": {}
+}

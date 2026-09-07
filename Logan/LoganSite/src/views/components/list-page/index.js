@@ -23,7 +23,8 @@ const ICON_BY_PLATFORM = {
     <span>
       <Icon type="apple" />
     </span>
-  )
+  ),
+  "3": <span>HarmonyOS</span>
 };
 
 class ListPage extends Component {

@@ -23,7 +23,7 @@ export class NativeList extends Component {
       params = parse(this.props.location.search, { ignoreQueryPrefix: true });
     }
     
-    const { deviceId, platform, beginTime, endTime } = params;
+    const { deviceId, platform, beginTime, endTime, appId, appVersion, taskId, unionId } = params;
     
     if (some([deviceId, beginTime, endTime, platform], item => item === void 0) && !every([deviceId, beginTime, endTime, platform], item => item === void 0)) {
       message.warn("url参数错误！获取默认日志列表");
@@ -31,13 +31,21 @@ export class NativeList extends Component {
 
     updateFilterConditions({
       deviceId: deviceId !== void 0 ? deviceId : "",
+      appId: appId !== void 0 ? appId : "",
+      appVersion: appVersion !== void 0 ? appVersion : "",
+      taskId: taskId !== void 0 ? taskId : "",
+      unionId: unionId !== void 0 ? unionId : "",
       platform: platform !== void 0 ? Number.parseInt(platform) : 0,
       beginTime: beginTime !== void 0 ? moment(Number.parseInt(beginTime)).valueOf() : moment().startOf("day").subtract(6, 'days').valueOf(),
       endTime: endTime !== void 0 ? moment(Number.parseInt(endTime)).valueOf() : moment().startOf("day").valueOf()
     });
-    if (deviceId && beginTime && endTime && platform) {
+    if ((deviceId || appId || appVersion || taskId || unionId) && beginTime && endTime && platform !== void 0) {
       fetchTasks({
         deviceId,
+        appId,
+        appVersion,
+        taskId,
+        unionId,
         platform,
         beginTime: moment(Number.parseInt(beginTime)).valueOf(),
         endTime: moment(Number.parseInt(endTime)).valueOf()

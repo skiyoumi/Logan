@@ -26,12 +26,16 @@ import 'dart:core';
 import 'package:flutter/services.dart';
 
 class FlutterLogan {
-  static const MethodChannel _channel = const MethodChannel('flutter_logan');
+  static const MethodChannel _channel = MethodChannel('flutter_logan');
 
   static Future<bool> init(
-      String aseKey, String aesIv, int maxFileLen) async {
-    final bool result = await _channel.invokeMethod('init',{'aesKey': aseKey, 'aesIv': aesIv, 'maxFileLen': maxFileLen});
-    return result;
+      String aesKey, String aesIv, int maxFileLen) async {
+    return await _channel.invokeMethod<bool>('init', <String, Object>{
+          'aesKey': aesKey,
+          'aesIv': aesIv,
+          'maxFileLen': maxFileLen,
+        }) ??
+        false;
   }
 
   static Future<void> log(int type, String log) async {
@@ -39,14 +43,24 @@ class FlutterLogan {
   }
 
   static Future<String> getUploadPath(String date) async {
-    final String result =
-        await _channel.invokeMethod('getUploadPath', {'date': date});
-    return result;
+    return await _channel.invokeMethod<String>(
+          'getUploadPath',
+          <String, Object>{'date': date},
+        ) ??
+        '';
   }
 
-  static Future<bool> upload(String serverUrl, String date, String appId, String unionId, String deviceId) async {
-    final bool result = await _channel.invokeMethod('upload',{'date': date, 'serverUrl': serverUrl, 'appId': appId, 'unionId': unionId, 'deviceId': deviceId});
-    return result;
+  static Future<bool> upload(String serverUrl, String date, String appId,
+      String unionId, String deviceId, {String appVersion = ''}) async {
+    return await _channel.invokeMethod<bool>('upload', <String, Object>{
+          'date': date,
+          'serverUrl': serverUrl,
+          'appId': appId,
+          'appVersion': appVersion,
+          'unionId': unionId,
+          'deviceId': deviceId,
+        }) ??
+        false;
   }
 
   static Future<void> flush() async {

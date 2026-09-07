@@ -4,7 +4,7 @@
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://raw.githubusercontent.com/Meituan-Dianping/Logan/master/LICENSE)
 [![Release Version](https://img.shields.io/github/release/Meituan-Dianping/Logan.svg?maxAge=2592000?style=flat-square)](https://github.com/Meituan-Dianping/Logan/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/pulls)
-[![Platform Support](https://img.shields.io/badge/Platform-%20iOS%20%7C%20Android%20-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/wiki)
+[![Platform Support](https://img.shields.io/badge/Platform-%20iOS%20%7C%20Android%20%7C%20HarmonyOS%20-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/wiki)
 
 [中文说明](./README-zh.md)
 
@@ -76,6 +76,12 @@ Jdk: 1.7 or 1.8（recomand）
 
 More to see: 
 [Android SDK](https://github.com/Meituan-Dianping/Logan/tree/master/Example/Logan-Android)
+
+## HarmonyOS
+
+The HarmonyOS HAR reuses Logan's C core and adds an N-API/ArkTS integration with a bounded background queue, daily rotation, retention, free-space protection, and stable upload-file preparation.
+
+[HarmonyOS SDK](./Logan/HarmonyOS) · [HarmonyOS example](./Example/Logan-HarmonyOS)
 
 
 ## Web SDK
@@ -198,6 +204,7 @@ Finally, we hope to provide a more complete integrated case analysis ecosystem.
 | :------: | :--: | :-----: | :-: |
 | iOS & macOS |   √  |        |    |
 | Android | √ |  |  |
+| HarmonyOS | √ |  |  |
 | Web |  | √ |  |
 | Mini Programs |  | √ |  |
 | Back End |  |  | √ |

@@ -13,10 +13,10 @@ RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify","clean","--fail-never"]
 ADD . $MY_HOME
 
 # run maven verify
-RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify"]
+RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify","-DforkMode=never"]
 
 # Second stage - build image
-FROM tomcat:7.0.61-jre8
+FROM tomcat:9-jre8
 
 COPY --from=build-env /app/target/*.war /usr/local/tomcat/webapps/logan-web.war
 

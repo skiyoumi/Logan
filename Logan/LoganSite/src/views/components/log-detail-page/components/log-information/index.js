@@ -83,6 +83,7 @@ class LogInformation extends Component {
         <Icon type="apple" />
       </span>
     );
+    platformNameByPlatformId.set(3, <span>HarmonyOS</span>);
     return platformNameByPlatformId;
   }
 }

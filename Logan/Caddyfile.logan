@@ -1,0 +1,13 @@
+logsystem.ezhisoft.com {
+	tls /etc/caddy/ssl/fullchain.pem /etc/caddy/ssl/key.pem
+	encode zstd gzip
+
+	@logan_backend path /logan-web /logan-web/*
+	handle @logan_backend {
+		reverse_proxy logan-backend:8080
+	}
+
+	handle {
+		reverse_proxy logan-frontend:80
+	}
+}

@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://raw.githubusercontent.com/Meituan-Dianping/Logan/master/LICENSE)
 [![Release Version](https://img.shields.io/github/release/Meituan-Dianping/Logan.svg?maxAge=2592000?style=flat-square)](https://github.com/Meituan-Dianping/Logan/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/pulls)
-[![Platform Support](https://img.shields.io/badge/Platform-%20iOS%20%7C%20Android%20-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/wiki)
+[![Platform Support](https://img.shields.io/badge/Platform-%20iOS%20%7C%20Android%20%7C%20HarmonyOS%20-brightgreen.svg)](https://github.com/Meituan-Dianping/Logan/wiki)
 
 Logan 是美团点评集团推出的大前端日志系统。名称是 Log 和 An 的组合，代表个体日志服务，同时也是金刚狼大叔的大名。
 
@@ -83,6 +83,12 @@ Jdk: 1.7 或 1.8（推荐）
 
 ### Android SDK 接入文档
 [Android SDK](https://github.com/Meituan-Dianping/Logan/tree/master/Example/Logan-Android)
+
+## HarmonyOS
+
+HarmonyOS SDK 复用 Logan C 核心，并通过 N-API 和 ArkTS 提供非阻塞日志队列、按日轮转、过期清理、磁盘保护及上传文件准备能力。
+
+[HarmonyOS SDK](./Logan/HarmonyOS) · [HarmonyOS 示例](./Example/Logan-HarmonyOS)
 
 
 ## Web SDK
@@ -244,6 +250,7 @@ Module | Open Source | Processing | Planning
 :-: | :-: | :-: | :-: 
 iOS & macOS | √ | | | 
 Android | √| | | 
+HarmonyOS | √| | |
 Web | √ | | | 
 Back End | √| | | 
 Front End | √ | | | 

@@ -53,11 +53,17 @@ public class LoganController {
      */
     @GetMapping("/task/search.json")
     @ResponseBody
-    public LoganResponse<List<LoganTaskModel>> search(String deviceId, Long beginTime, Long endTime, Integer platform) {
-        if (StringUtils.isEmpty(deviceId)) {
+    public LoganResponse<List<LoganTaskModel>> search(String deviceId, Long beginTime, Long endTime, Integer platform,
+                                                       String appId, String appVersion, Long taskId, String unionId) {
+        if (StringUtils.isAllBlank(deviceId, appId, appVersion, unionId)
+                && taskId == null && platform == null) {
             return LoganResponse.badParam(PARAM_ERROR);
         }
-        LoganTaskRequest request = new LoganTaskRequest(deviceId, beginTime, endTime, platform);
+        if (taskId != null && taskId <= 0) {
+            return LoganResponse.badParam(PARAM_ERROR);
+        }
+        LoganTaskRequest request = new LoganTaskRequest(deviceId, beginTime, endTime, platform,
+                appId, appVersion, taskId, unionId);
         request.ready();
         return LoganResponse.success(taskService.search(request));
     }

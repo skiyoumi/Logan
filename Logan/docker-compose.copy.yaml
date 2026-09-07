@@ -1,0 +1,95 @@
+version: "3.7"
+
+services:
+  logan-backend:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:backend-v1
+    restart: unless-stopped
+    depends_on:
+      logan-db:
+        condition: service_healthy
+      logan-db-migrate:
+        condition: service_completed_successfully
+    expose:
+      - "8080"
+    volumes:
+      - backend-log:/usr/local/tomcat/logfile
+    networks:
+      - logan-internal
+      - k12-proxy
+
+  logan-db:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:mysql-8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "logan"
+      MYSQL_USER: "logan"
+      MYSQL_PASSWORD: "logan"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    expose:
+      - "3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      logan-internal:
+        aliases:
+          - db
+
+  logan-db-migrate:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:migrate-latest
+    restart: "no"
+    depends_on:
+      logan-db:
+        condition: service_healthy
+    volumes:
+      - ./scripts/migration/mysql:/etc/migrations:ro
+    command:
+      - "-source"
+      - "file:///etc/migrations"
+      - "-database"
+      - "mysql://logan:logan@tcp(db:3306)/logan"
+      - "up"
+    networks:
+      - logan-internal
+
+  logan-phpmyadmin:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:phpmyadmin-5.2
+    restart: unless-stopped
+    depends_on:
+      logan-db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: "db"
+      PMA_PORT: "3306"
+      PMA_USER: "logan"
+      PMA_PASSWORD: "logan"
+    expose:
+      - "80"
+    networks:
+      - logan-internal
+
+  logan-frontend:
+    image: crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:frontend-v1
+    restart: unless-stopped
+    depends_on:
+      logan-backend:
+        condition: service_started
+    expose:
+      - "80"
+    networks:
+      - k12-proxy
+
+networks:
+  logan-internal:
+  k12-proxy:
+    external: true
+    name: "${K12_NETWORK_NAME:-k12_k12}"
+
+volumes:
+  mysql-data:
+  backend-log:

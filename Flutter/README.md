@@ -1,5 +1,33 @@
 # flutter_logan
-This is a plugin privide an ability to use Logan in Flutter like native.It use MethodChannel to call method implement by Logan.so the native part of Logan is required.But there is no need to worry,Logan is a lightweight log system,it will not significantly make your package volume larger.
+
+Flutter bindings for Logan on Android, iOS, and HarmonyOS. All three platforms use the same `flutter_logan` method channel and the same Dart API.
+
+## HarmonyOS setup
+
+Use the OpenHarmony-SIG Flutter SDK and add this repository package to the application:
+
+```yaml
+dependencies:
+  flutter_logan:
+    path: ../Logan/Flutter
+```
+
+Generate or enable the HarmonyOS host project, then fetch dependencies:
+
+```shell
+flutter create --platforms ohos .
+flutter pub get
+```
+
+The Flutter tool supplies `ohos/har/flutter.har`; the plugin automatically registers `FlutterLoganPlugin` and builds the source HAR in `Logan/HarmonyOS`. If `upload` is used, ensure the application's `ohos/entry/src/main/module.json5` requests network access:
+
+```json5
+"requestPermissions": [
+  { "name": "ohos.permission.INTERNET" }
+]
+```
+
+HarmonyOS upload requests use the native Logan binary format, send `platform: 3`, and require the same `appId`, `unionId`, `deviceId`, and `fileDate` headers as Android/iOS.
 
 ### Getting Started
 How to use?

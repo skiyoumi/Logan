@@ -35,13 +35,31 @@
 
     <select id="search" parameterType="map" resultMap="resultMap">
         SELECT * FROM logan_task
-        WHERE device_id = #{request.deviceId}
+        WHERE 1 = 1
+        <if test="request.taskId != null">
+            AND id = #{request.taskId}
+        </if>
+        <if test="request.deviceId != null and request.deviceId != ''">
+            AND device_id = #{request.deviceId}
+        </if>
+        <if test="request.appId != null and request.appId != ''">
+            AND app_id = #{request.appId}
+        </if>
+        <if test="request.appVersion != null and request.appVersion != ''">
+            AND app_version = #{request.appVersion}
+        </if>
+        <if test="request.unionId != null and request.unionId != ''">
+            AND union_id = #{request.unionId}
+        </if>
         <if test="request.platform != null">
             <if test='request.platform == 1'>
                 AND platform = 1
             </if>
             <if test='request.platform == 2'>
                 AND platform = 2
+            </if>
+            <if test='request.platform == 3'>
+                AND platform = 3
             </if>
         </if>
         <if test="request.beginTime != null">

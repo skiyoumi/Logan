@@ -9,7 +9,7 @@ let pendingRequests = [];
 const instance = axios.create({
   baseURL: BASE_URL,
   timeout: API_TIME_OUT,
-  withCredentials: true
+  withCredentials: false
 });
 
 
@@ -19,14 +19,17 @@ export function fetchNativeListInitData() {
   return instance.get("/logan/latest.json");
 }
 
-export function fetchNativeTaskApi(deviceId, platform, beginTime, endTime) {
-  console.log( { deviceId, platform, beginTime, endTime })
+export function fetchNativeTaskApi({deviceId, platform, beginTime, endTime, appId, appVersion, taskId, unionId}) {
   return instance.get("/logan/task/search.json", {
     params: {
       deviceId,
       platform,
       beginTime,
-      endTime
+      endTime,
+      appId,
+      appVersion,
+      taskId,
+      unionId
     }
   });
 }

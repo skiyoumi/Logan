@@ -35,9 +35,9 @@ export function changeLoading(loading) {
   };
 }
 
-export function fetchTasks({deviceId, platform, beginTime, endTime}) {
+export function fetchTasks({deviceId, platform, beginTime, endTime, appId, appVersion, taskId, unionId}) {
   return (dispatch, getState) => {
-    return fetchNativeTaskApi(deviceId, platform, beginTime, endTime)
+    return fetchNativeTaskApi({deviceId, platform, beginTime, endTime, appId, appVersion, taskId, unionId})
       .then(data => {
         dispatch({
           type: NATIVE_UPDATE_TASKS,

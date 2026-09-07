@@ -22,7 +22,6 @@
 
 package com.meituan.flutter_logan;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.dianping.logan.SendLogRunnable;
@@ -128,13 +127,28 @@ public class RealSendLogRunnable extends SendLogRunnable {
       }
       outputStream.flush();
       int res = c.getResponseCode();
-      if (res == 200) {
-        back = new ByteArrayOutputStream();
-        inputStream = c.getInputStream();
+      Log.i("LoganUpload", "POST " + url + ", HTTP " + res);
+      back = new ByteArrayOutputStream();
+      inputStream = res >= 400 ? c.getErrorStream() : c.getInputStream();
+      if (inputStream != null) {
         while ((i = inputStream.read(Buffer)) != -1) {
           back.write(Buffer, 0, i);
         }
-        data = back.toByteArray();
+      }
+      byte[] responseBytes = back.toByteArray();
+      // Preserve error responses in diagnostics even when the upload fails.
+      String responseText = new String(responseBytes, "UTF-8");
+      if (responseText.isEmpty()) {
+        Log.i("LoganUpload", "Response body: (empty)");
+      } else {
+        // Logcat truncates long messages; print each chunk without dropping data.
+        for (int start = 0; start < responseText.length(); start += 1000) {
+          Log.i("LoganUpload", "Response body: "
+              + responseText.substring(start, Math.min(start + 1000, responseText.length())));
+        }
+      }
+      if (res == 200) {
+        data = responseBytes;
       }
     } catch (ProtocolException e) {
       e.printStackTrace();
@@ -175,17 +189,18 @@ public class RealSendLogRunnable extends SendLogRunnable {
    * 处理上传日志接口返回的数据
    */
   private boolean handleSendLogBackData(byte[] backData) throws JSONException {
-    boolean isSuccess = false;
-    if (backData != null) {
-      String data = new String(backData);
-      if (!TextUtils.isEmpty(data)) {
-        JSONObject jsonObj = new JSONObject(data);
-        if (jsonObj.optBoolean("success", false)) {
-          isSuccess = true;
-        }
-      }
+    if (backData == null) {
+      return false;
     }
-    return isSuccess;
+    return isSuccessfulResponse(new String(backData));
+  }
+
+  static boolean isSuccessfulResponse(String data) throws JSONException {
+    if (data == null || data.isEmpty()) {
+      return false;
+    }
+    JSONObject jsonObj = new JSONObject(data);
+    return jsonObj.optBoolean("success", false) || jsonObj.optInt("code", -1) == 200;
   }
 
   /**

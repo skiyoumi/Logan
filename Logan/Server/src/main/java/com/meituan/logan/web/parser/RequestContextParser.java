@@ -7,6 +7,11 @@ import com.meituan.logan.web.util.DateTimeUtil;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
 
@@ -33,7 +38,31 @@ public class RequestContextParser {
     }
 
     private static String getString(HttpServletRequest request, String headerName) {
-        return request.getHeader(headerName);
+        return decodeHeaderValue(request.getHeader(headerName));
+    }
+
+    /**
+     * Tomcat exposes HTTP header bytes as ISO-8859-1 characters. Some Logan clients send
+     * UTF-8 bytes directly, so recover those values while leaving ASCII and real Unicode
+     * strings unchanged.
+     */
+    public static String decodeHeaderValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            ByteBuffer bytes = StandardCharsets.ISO_8859_1.newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .encode(CharBuffer.wrap(value));
+            return StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(bytes)
+                    .toString();
+        } catch (CharacterCodingException ignored) {
+            return value;
+        }
     }
 
     private static Integer getInteger(HttpServletRequest request, String headerName) {

@@ -1,0 +1,7 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "Logan HarmonyOS example" },
+    { "name": "EntryAbility_desc", "value": "Logan example entry ability" },
+    { "name": "EntryAbility_label", "value": "Logan HarmonyOS" }
+  ]
+}

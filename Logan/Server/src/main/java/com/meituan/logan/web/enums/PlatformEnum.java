@@ -9,7 +9,8 @@ import lombok.Getter;
  * @since logan-web 1.0
  */
 public enum PlatformEnum {
-    UNKNOWN(-1, "unknown"), ALL(0, "all"), ANDROID(1, "android"), IOS(2, "iOS");
+    UNKNOWN(-1, "unknown"), ALL(0, "all"), ANDROID(1, "android"), IOS(2, "iOS"),
+    HARMONY_OS(3, "HarmonyOS");
 
     @Getter
     private int platform;
