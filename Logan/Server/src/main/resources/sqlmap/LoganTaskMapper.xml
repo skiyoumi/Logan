@@ -43,6 +43,9 @@
             <if test='request.platform == 2'>
                 AND platform = 2
             </if>
+            <if test='request.platform == 3'>
+                AND platform = 3
+            </if>
         </if>
         <if test="request.beginTime != null">
             AND `add_time` &gt;= #{request.beginTime}

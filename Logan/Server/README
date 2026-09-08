@@ -4,7 +4,7 @@ please replace it with your own database information
 2、Database table structure：
 CREATE TABLE `logan_task` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `platform` tinyint(11) unsigned NOT NULL COMMENT '平台1android2iOS',
+  `platform` tinyint(11) unsigned NOT NULL COMMENT '平台1android2iOS3HarmonyOS',
   `amount` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '文件大小',
   `app_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'app标识',
   `union_id` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '用户标识',
@@ -70,3 +70,8 @@ Please modify fileService according to your actual scenario to suit your storage
 4、You need to implement the ContentHandler interface to format the display according to the log type.
 The getSimpleContent() method displays the summary. The getFormatContent () method displays the Formatted data.
 
+
+5、Native platform values: 1 = Android, 2 = iOS, 3 = HarmonyOS.
+Send the platform value in the `platform` HTTP header when uploading logs.
+Task search accepts the same values; 0 or an omitted platform selects all platforms.
+Existing database columns already support platform 3; no schema change is required.

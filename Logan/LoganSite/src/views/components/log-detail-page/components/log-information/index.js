@@ -68,7 +68,7 @@ class LogInformation extends Component {
     platformNameByPlatformId.set(
       0,
       <span>
-        <Icon type="apple" /> | <Icon type="android" />
+        <Icon type="apple" /> | <Icon type="android" /> | HarmonyOS
       </span>
     );
     platformNameByPlatformId.set(
@@ -83,6 +83,7 @@ class LogInformation extends Component {
         <Icon type="apple" />
       </span>
     );
+    platformNameByPlatformId.set(3, <span>HarmonyOS</span>);
     return platformNameByPlatformId;
   }
 }

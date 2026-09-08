@@ -2,7 +2,7 @@ SET NAMES utf8mb4;
 
 CREATE TABLE `logan_task` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `platform` tinyint(11) unsigned NOT NULL COMMENT '平台1android2iOS',
+  `platform` tinyint(11) unsigned NOT NULL COMMENT '平台1android2iOS3HarmonyOS',
   `amount` varchar(64) COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '文件大小',
   `app_id` varchar(32) COLLATE utf8mb4_general_ci DEFAULT '' COMMENT 'app标识',
   `union_id` varchar(256) COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '用户标识',

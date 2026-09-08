@@ -8,10 +8,11 @@ import HeaderBar from "./components/header-bar/index";
 const { Column } = Table;
 
 const ICON_BY_PLATFORM = {
+  "3": <span>HarmonyOS</span>,
   "-1": <span>Unknown</span>,
   "0": (
     <span>
-      <Icon type="android" /> | <Icon type="apple" />
+      <Icon type="android" /> | <Icon type="apple" /> | HarmonyOS
     </span>
   ),
   "1": (

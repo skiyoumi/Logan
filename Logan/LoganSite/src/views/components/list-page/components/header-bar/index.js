@@ -48,6 +48,7 @@ class HeaderBar extends Component {
                 <Option value={0}>全部平台</Option>
                 <Option value={1}>Android</Option>
                 <Option value={2}>iOS</Option>
+                <Option value={3}>鸿蒙 HarmonyOS</Option>
               </Select>
             }
             <RangePicker
