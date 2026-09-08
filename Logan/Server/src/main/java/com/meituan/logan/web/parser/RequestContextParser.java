@@ -26,7 +26,7 @@ public class RequestContextParser {
         model.setDeviceId(getString(request, "deviceId"));
         Date date = DateTimeUtil.parse(getString(request, "fileDate"), DateFormatStyleEnum.DATE);
         model.setLogDate(date == null ? 0 : date.getTime());
-        model.setLogFileName(createFileNameByAppDeviceDate(model));
+        model.setLogFileName(UUID.randomUUID() + ".log");
         model.setAddTime(System.currentTimeMillis());
 
         return model;
@@ -38,12 +38,6 @@ public class RequestContextParser {
 
     private static Integer getInteger(HttpServletRequest request, String headerName) {
         return NumberUtils.toInt(request.getHeader(headerName));
-    }
-
-    private static String createFileNameByAppDeviceDate(LoganTaskModel model) {
-        return model.getAppId() + "_" +
-                model.getDeviceId() + "_" +
-                model.getLogDate() + "_" + UUID.randomUUID() + ".log";
     }
 
 }

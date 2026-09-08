@@ -236,7 +236,8 @@ export function updateSorted(sorted) {
             sortedBriefs = sortBy(newBriefs, item => item.id);
             sortedBriefs = reverse(sortedBriefs);
           }
-          const detailIds = getPageOfLogIdsBySingleLogId(convertBriefsToLoglistInfiniteScrollBriefs(sortedBriefs, "native"), sortedBriefs[0].id);
+          const detailIds = sortedBriefs.length === 0 ? [] :
+            getPageOfLogIdsBySingleLogId(convertBriefsToLoglistInfiniteScrollBriefs(sortedBriefs, "native"), sortedBriefs[0].id);
           return Promise.all([detailIds, sortedBriefs]);
         }).then(([detailIds, sortedBriefs]) => {
           return Promise.all([sortedBriefs, fetchNativeTaskDetailsByDetailIdsApi(detailIds.join(","))])

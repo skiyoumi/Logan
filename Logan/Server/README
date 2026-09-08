@@ -6,7 +6,7 @@ CREATE TABLE `logan_task` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `platform` tinyint(11) unsigned NOT NULL COMMENT '平台1android2iOS3HarmonyOS',
   `amount` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '文件大小',
-  `app_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'app标识',
+  `app_id` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'app标识',
   `union_id` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '用户标识',
   `device_id` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '设备标识',
   `app_version` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'app版本',
@@ -24,7 +24,7 @@ CREATE TABLE `logan_log_detail` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `task_id` bigint(11) unsigned NOT NULL COMMENT '所属任务id',
   `log_type` int(11) unsigned NOT NULL COMMENT '日志类型',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '原始日志',
+  `content` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '原始日志',
   `log_time` bigint(20) unsigned NOT NULL COMMENT '本条日志产生的具体时间戳',
   `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '添加时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -81,3 +81,12 @@ for example `%E7%94%A8%E6%88%B7` for `用户`, and legacy raw UTF-8 headers.
 Percent escapes are decoded once before storage; literal `+` is preserved
 (use `%20` for a space and `%2B` for a plus). Invalid encodings are kept intact.
 Existing stored values are not rewritten; upload again to apply this decoding.
+
+7、Native uploads support AppIds up to 256 characters. Longer values return code 400
+before reading the log body. New uploads use UUID filenames so AppId/deviceId length
+does not exceed filesystem filename limits; existing filenames continue to work.
+Native log detail content uses MEDIUMTEXT (at most 16,777,215 UTF-8 bytes per entry).
+From the Logan directory, run `docker compose run --rm db-migrate` to apply migration 2,
+then rebuild the backend. Fresh databases run migrations 1 and 2 in order.
+Migration 2 does not automatically shrink columns on rollback because this could lose data.
+Previously failed log details are not recovered by the schema change; upload those logs again.

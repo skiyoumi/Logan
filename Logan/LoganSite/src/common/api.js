@@ -49,6 +49,9 @@ export function fetchNativeTaskBriefsByTaskIdApi(taskId, logTypes, keyword) {
 }
 
 export function fetchNativeTaskDetailsByDetailIdsApi(detailIds) {
+  if (!detailIds || !detailIds.trim()) {
+    return Promise.resolve([]);
+  }
   return instance.get("/logan/task/query/details.json", {
     params: {
       detailIds: detailIds

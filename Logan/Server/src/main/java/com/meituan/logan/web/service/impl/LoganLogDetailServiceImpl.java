@@ -23,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LoganLogDetailServiceImpl extends AbstractBatchInsertService<LoganLogDetailDTO> implements LoganLogDetailService {
     private static final Logger LOGGER = Logger.getLogger(LoganLogDetailServiceImpl.class);
     private static final int SIZE = 20;
+    private static final int MAX_BATCH_BYTES = 4 * 1024 * 1024;
     private static final Map<String, Object> keyLocks = new ConcurrentHashMap<>();
 
     @Resource
@@ -143,8 +145,28 @@ public class LoganLogDetailServiceImpl extends AbstractBatchInsertService<LoganL
 
     @Override
     protected void execute(List<LoganLogDetailDTO> list) {
+        List<LoganLogDetailDTO> batch = new ArrayList<>();
+        long batchBytes = 0;
+        for (LoganLogDetailDTO detail : list) {
+            // Allow room for SQL/escaping as well as the UTF-8 content itself.
+            long detailBytes = 256L + (detail.getContent() == null ? 0 :
+                    2L * detail.getContent().getBytes(StandardCharsets.UTF_8).length);
+            if (!batch.isEmpty() && batchBytes + detailBytes > MAX_BATCH_BYTES) {
+                insertBatch(batch);
+                batch = new ArrayList<>();
+                batchBytes = 0;
+            }
+            batch.add(detail);
+            batchBytes += detailBytes;
+        }
+        if (!batch.isEmpty()) {
+            insertBatch(batch);
+        }
+    }
+
+    private void insertBatch(List<LoganLogDetailDTO> batch) {
         try {
-            detailMapper.batchInsert(list);
+            detailMapper.batchInsert(batch);
         } catch (Exception e) {
             LOGGER.error(e);
         }

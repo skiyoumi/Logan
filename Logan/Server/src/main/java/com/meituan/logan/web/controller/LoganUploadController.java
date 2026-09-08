@@ -39,6 +39,10 @@ public class LoganUploadController {
     @PostMapping("/upload.json")
     @ResponseBody
     public LoganResponse<String> upload(HttpServletRequest request) throws IOException {
+        String appId = request.getHeader("appId");
+        if (appId != null && appId.codePointCount(0, appId.length()) > 256) {
+            return LoganResponse.badParam("appId must not exceed 256 characters");
+        }
         LoganTaskModel model = RequestContextParser.parse(request);
         ResultEnum result = fileService.write(request.getInputStream(), model.getLogFileName());
         if (ResultEnum.SUCCESS != result) {
