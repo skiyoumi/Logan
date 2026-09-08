@@ -75,3 +75,9 @@ The getSimpleContent() method displays the summary. The getFormatContent () meth
 Send the platform value in the `platform` HTTP header when uploading logs.
 Task search accepts the same values; 0 or an omitted platform selects all platforms.
 Existing database columns already support platform 3; no schema change is required.
+
+6、The native `unionId` header accepts UTF-8 percent encoding (recommended),
+for example `%E7%94%A8%E6%88%B7` for `用户`, and legacy raw UTF-8 headers.
+Percent escapes are decoded once before storage; literal `+` is preserved
+(use `%20` for a space and `%2B` for a plus). Invalid encodings are kept intact.
+Existing stored values are not rewritten; upload again to apply this decoding.

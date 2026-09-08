@@ -19,7 +19,7 @@ public class RequestContextParser {
         LoganTaskModel model = new LoganTaskModel();
         model.setAmount(request.getContentLength() + "");
         model.setAppId(getString(request, "appId"));
-        model.setUnionId(getString(request, "unionId"));
+        model.setUnionId(UnionIdHeaderDecoder.decode(getString(request, "unionId")));
         model.setPlatform(PlatformEnum.valueOfPlatform(getInteger(request, "platform")).getPlatform());
         model.setBuildVersion(getString(request, "buildVersion"));
         model.setAppVersion(getString(request, "appVersion"));

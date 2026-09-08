@@ -12,8 +12,8 @@ RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify","clean","--fail-never"]
 # add source
 ADD . $MY_HOME
 
-# run maven verify
-RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify"]
+# Run tests in the Maven JVM; the legacy build image cannot start the Surefire fork.
+RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify","-DforkCount=0"]
 
 # Second stage - build image
 FROM tomcat:9-jre8
