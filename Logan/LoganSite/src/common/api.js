@@ -9,7 +9,7 @@ let pendingRequests = [];
 const instance = axios.create({
   baseURL: BASE_URL,
   timeout: API_TIME_OUT,
-  withCredentials: true
+  withCredentials: false
 });
 
 

@@ -4,14 +4,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 public class CORSFilter implements Filter {
-
-    // This is to be replaced with a list of domains allowed to access the server
-    //You can include more than one origin here
-    private final List<String> allowedOrigins = Arrays.asList("http://localhost:3000", "http://localhost:5001");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -26,15 +20,11 @@ public class CORSFilter implements Filter {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
 
             // Access-Control-Allow-Origin
-            String origin = request.getHeader("Origin");
-            response.setHeader("Access-Control-Allow-Origin", allowedOrigins.contains(origin) ? origin : "");
-            response.setHeader("Vary", "Origin");
+            // Wildcard origins require requests without cross-origin credentials.
+            response.setHeader("Access-Control-Allow-Origin", "*");
 
             // Access-Control-Max-Age
             response.setHeader("Access-Control-Max-Age", "3600");
-
-            // Access-Control-Allow-Credentials
-            response.setHeader("Access-Control-Allow-Credentials", "true");
 
             // Access-Control-Allow-Methods
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -42,6 +32,12 @@ public class CORSFilter implements Filter {
             // Access-Control-Allow-Headers
             response.setHeader("Access-Control-Allow-Headers",
                     "Origin, X-Requested-With, Content-Type, Accept, " + "X-CSRF-TOKEN");
+            if ("OPTIONS".equalsIgnoreCase(request.getMethod())
+                    && request.getHeader("Origin") != null
+                    && request.getHeader("Access-Control-Request-Method") != null) {
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                return;
+            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

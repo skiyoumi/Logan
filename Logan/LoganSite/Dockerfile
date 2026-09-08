@@ -1,12 +1,12 @@
 # build frontend
-FROM node:10-alpine as frontend
+FROM node:10 as frontend
 
 WORKDIR /web
 COPY . .
-RUN yarn config set registry https://registry.npmmirror.com -g && \
-    yarn config set sass_binary_site "https://npmmirror.com/mirrors/node-sass/" -g  && \
-    yarn && \
-    yarn build
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set sass_binary_site "https://npmmirror.com/mirrors/node-sass/"  && \
+    npm install && \
+    npm run build
 
 FROM library/nginx
 USER root
