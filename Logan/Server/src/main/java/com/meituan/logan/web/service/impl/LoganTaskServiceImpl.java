@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.meituan.logan.web.dto.LoganTaskDTO;
 import com.meituan.logan.web.mapper.LoganTaskMapper;
 import com.meituan.logan.web.model.LoganTaskModel;
+import com.meituan.logan.web.model.LoganTaskPageModel;
 import com.meituan.logan.web.model.request.LoganTaskRequest;
 import com.meituan.logan.web.service.LoganTaskService;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,6 +60,18 @@ public class LoganTaskServiceImpl implements LoganTaskService {
             LOGGER.error(e);
         }
         return 0L;
+    }
+
+    @Override
+    public LoganTaskPageModel queryPage(LoganTaskRequest request, int page, int pageSize) {
+        long total = taskMapper.countPage(request);
+        long offset = (long) (page - 1) * pageSize;
+        List<LoganTaskModel> items = Collections.emptyList();
+        if (offset < total) {
+            items = Lists.newArrayList(Lists.transform(taskMapper.queryPage(request, offset, pageSize),
+                    LoganTaskDTO::transformToModel));
+        }
+        return new LoganTaskPageModel(items, total, page, pageSize);
     }
 
     @Override

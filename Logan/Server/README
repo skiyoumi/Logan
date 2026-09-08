@@ -90,3 +90,12 @@ From the Logan directory, run `docker compose run --rm db-migrate` to apply migr
 then rebuild the backend. Fresh databases run migrations 1 and 2 in order.
 Migration 2 does not automatically shrink columns on rollback because this could lose data.
 Previously failed log details are not recovered by the schema change; upload those logs again.
+
+8、Native task pagination: GET /logan/task/page.json?page=1&pageSize=20
+The response data contains { items, total, page, pageSize }, ordered by task ID descending.
+Page numbers start at 1; pageSize defaults to 20 and accepts 1 through 100.
+Optional filters: deviceId (exact match), platform (0/all, 1/Android, 2/iOS, 3/HarmonyOS),
+beginTime and endTime (epoch milliseconds, filtering upload time).
+As with the existing search endpoint, one day is added to endTime to include the selected day.
+Omitted filters do not restrict the initial task list. The latest/search endpoints are unchanged.
+Rebuild both backend and frontend together for the paginated native task list; no new migration is required.

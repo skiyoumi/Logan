@@ -8,5 +8,8 @@ export const initialState = {
     endTime: moment().startOf("day")
   },
   tasks: [],
+  pagination: { current: 1, pageSize: 20, total: 0 },
+  appliedFilters: {},
+  requestId: 0,
   loading: false
 };

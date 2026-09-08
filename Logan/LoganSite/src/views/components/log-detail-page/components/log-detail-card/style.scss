@@ -1,8 +1,9 @@
 .detail-information-container {
   border: solid 1px #e8e8e8;
   border-radius: 4px;
-  min-height: 400px;
-  max-height: 1700px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 
   height: 100%;
   margin-left: 10px;
@@ -22,8 +23,13 @@
     }
   }
 
+  .ant-card-head { flex-shrink: 0; }
+
   .ant-card-body {
-    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
 
 
 
@@ -34,7 +40,9 @@
 
     .log-content {
       padding-top: 12px;
-      word-break: break-all;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
   }
 }

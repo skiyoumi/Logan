@@ -1,48 +1,43 @@
 import {
-  NATIVE_UPDATE_FILTER_CONDITIONS,
-  NATIVE_UPDATE_TASKS,
-  NATIVE_CHANGE_LOADING
+  NATIVE_UPDATE_FILTER_CONDITIONS, NATIVE_CHANGE_LOADING,
+  NATIVE_PAGE_REQUEST, NATIVE_PAGE_SUCCESS, NATIVE_PAGE_FAILURE
 } from "./reducer";
-import {fetchNativeTaskApi, fetchNativeListInitData} from "../../../common/api";
+import { fetchNativeTaskPageApi } from "../../../common/api";
 
-export function fetchInitData() {
-  return (dispatch) => {
-    return fetchNativeListInitData()
-      .then(data => {
-        dispatch({
-          type: NATIVE_UPDATE_TASKS,
-          tasks: data
-        })
-      })
-  }
-}
+let nextRequestId = 0;
 
-export function updateFilterConditions(newFilterConditions) {
-  return (dispatch, getState) => {
-    dispatch({
-      type: NATIVE_UPDATE_FILTER_CONDITIONS,
-      filterConditions: newFilterConditions
+function loadPage(page, pageSize, filters) {
+  return dispatch => {
+    const requestId = ++nextRequestId;
+    dispatch({ type: NATIVE_PAGE_REQUEST, requestId });
+    return fetchNativeTaskPageApi({ ...filters, page, pageSize }).then(result => {
+      dispatch({ type: NATIVE_PAGE_SUCCESS, requestId, result, filters });
+    }, error => {
+      dispatch({ type: NATIVE_PAGE_FAILURE, requestId });
+      throw error;
     });
   };
+}
+
+export function fetchInitData() {
+  return loadPage(1, 20, {});
+}
+
+export function updateFilterConditions(filterConditions) {
+  return dispatch => dispatch({ type: NATIVE_UPDATE_FILTER_CONDITIONS, filterConditions });
 }
 
 export function changeLoading(loading) {
-  return (dispatch, getState) => {
-    dispatch({
-      type: NATIVE_CHANGE_LOADING,
-      loading: loading
-    });
-  };
+  return dispatch => dispatch({ type: NATIVE_CHANGE_LOADING, loading });
 }
 
-export function fetchTasks({deviceId, platform, beginTime, endTime}) {
+export function fetchTasks(filters) {
+  return (dispatch, getState) => loadPage(1, getState().nativeList.pagination.pageSize, filters)(dispatch);
+}
+
+export function fetchPage(page, pageSize) {
   return (dispatch, getState) => {
-    return fetchNativeTaskApi(deviceId, platform, beginTime, endTime)
-      .then(data => {
-        dispatch({
-          type: NATIVE_UPDATE_TASKS,
-          tasks: data
-        });
-      })
+    const { appliedFilters, pagination } = getState().nativeList;
+    return loadPage(pageSize === pagination.pageSize ? page : 1, pageSize, appliedFilters)(dispatch);
   };
 }

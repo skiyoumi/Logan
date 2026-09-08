@@ -1,12 +1,13 @@
 .inifinite-scroll-container {
   height: 100%;
   flex: 1;
+  min-height: 0;
+  min-width: 0;
   position: relative;
 }
 
 .container-inner {
-  min-height: 400px;
-  max-height: 1700px; // 限定最高高度是为了防止loading不触发，此高度大致是30条日志
+  min-height: 0;
   height: 100%;
   border: 1px solid #e8e8e8;
   border-radius: 4px;
@@ -92,6 +93,6 @@
 }
 
 .scroll-content {
-  flex: 0.95;
+  flex: 0 0 auto;
   width: 100%;
 }

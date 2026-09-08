@@ -4,6 +4,8 @@ import com.meituan.logan.web.enums.LogTypeEnum;
 import com.meituan.logan.web.model.LoganLogDetailModel;
 import com.meituan.logan.web.model.LoganLogSimpleModel;
 import com.meituan.logan.web.model.LoganTaskModel;
+import com.meituan.logan.web.model.LoganTaskPageModel;
+import com.meituan.logan.web.util.DateTimeUtil;
 import com.meituan.logan.web.model.Tuple;
 import com.meituan.logan.web.model.request.LoganTaskRequest;
 import com.meituan.logan.web.model.response.LoganResponse;
@@ -46,6 +48,26 @@ public class LoganController {
     @ResponseBody
     public LoganResponse<List<LoganTaskModel>> latestReport() {
         return LoganResponse.success(taskService.queryLatest(DEFAULT_LIMIT));
+    }
+
+    @GetMapping("/task/page.json")
+    @ResponseBody
+    public LoganResponse<LoganTaskPageModel> page(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize,
+            String deviceId, Long beginTime, Long endTime,
+            @RequestParam(defaultValue = "0") int platform) {
+        if (page < 1 || pageSize < 1 || pageSize > 100 || platform < 0 || platform > 3) {
+            return LoganResponse.badParam("invalid pagination or platform");
+        }
+        if ((beginTime != null && beginTime < 0) || (endTime != null &&
+                (endTime < 0 || endTime > Long.MAX_VALUE - DateTimeUtil.ONE_DAY)) ||
+                (beginTime != null && endTime != null && beginTime > endTime)) {
+            return LoganResponse.badParam("invalid time range");
+        }
+        LoganTaskRequest request = new LoganTaskRequest(StringUtils.trimToNull(deviceId), beginTime,
+                endTime == null ? null : endTime + DateTimeUtil.ONE_DAY, platform);
+        return LoganResponse.success(taskService.queryPage(request, page, pageSize));
     }
 
     /**

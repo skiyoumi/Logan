@@ -1,6 +1,7 @@
 package com.meituan.logan.web.service;
 
 import com.meituan.logan.web.model.LoganTaskModel;
+import com.meituan.logan.web.model.LoganTaskPageModel;
 import com.meituan.logan.web.model.request.LoganTaskRequest;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface LoganTaskService {
     long insertTask(LoganTaskModel loganTaskModel);
 
     List<LoganTaskModel> queryLatest(int limit);
+
+    LoganTaskPageModel queryPage(LoganTaskRequest request, int page, int pageSize);
 }

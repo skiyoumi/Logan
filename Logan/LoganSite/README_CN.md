@@ -133,4 +133,12 @@ LOGAN_SITE
 ```
 
 ## License
-Logan项目采用MIT许可协议 - 详细内容请查看[LICENSE](https://github.com/Meituan-Dianping/Logan/blob/master/LICENSE) 
+Logan项目采用MIT许可协议 - 详细内容请查看[LICENSE](https://github.com/Meituan-Dianping/Logan/blob/master/LICENSE)
+
+## Docker 与同域反向代理
+
+Docker 生产构建默认使用 `API_BASE_URL=/logan-web`。通过 Caddy 将 `/logan-web` 和 `/logan-web/*` 转发到 `logan-backend:8080`，其余请求转发到 `logan-frontend:80`，并保留后端请求路径。Caddy 与这两个服务需要加入同一 Docker 网络。
+
+需要指定其他 API 地址时，在构建前端镜像时传入 `--build-arg API_BASE_URL=https://你的后端域名/logan-web`。此地址会写入前端静态文件，修改后必须重新构建镜像；运行容器时设置环境变量不会修改已经构建的页面。
+
+`.env.development` 是被 Git 忽略的本地配置。Docker 构建显式指定上述 API 地址，避免依赖本地文件。开发时继续按本地后端地址配置该文件。

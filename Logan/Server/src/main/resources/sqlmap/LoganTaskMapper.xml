@@ -57,4 +57,19 @@
     <select id="queryLatest" parameterType="java.lang.Integer" resultMap="resultMap">
         SELECT * FROM logan_task ORDER BY id DESC LIMIT 0,#{limit}
     </select>
+    <sql id="pageFilters">
+        <where>
+            <if test="request.deviceId != null">AND device_id = #{request.deviceId}</if>
+            <if test="request.platform != null and request.platform != 0">AND platform = #{request.platform}</if>
+            <if test="request.beginTime != null">AND add_time &gt;= #{request.beginTime}</if>
+            <if test="request.endTime != null">AND add_time &lt;= #{request.endTime}</if>
+        </where>
+    </sql>
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*) FROM logan_task <include refid="pageFilters"/>
+    </select>
+    <select id="queryPage" resultMap="resultMap">
+        SELECT * FROM logan_task <include refid="pageFilters"/>
+        ORDER BY id DESC LIMIT #{limit} OFFSET #{offset}
+    </select>
 </mapper>

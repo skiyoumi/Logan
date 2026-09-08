@@ -53,9 +53,20 @@ class ListPage extends Component {
     );
   }
 
+  getPagination = () => ({
+    defaultPageSize: 20,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    pageSizeOptions: ["10", "20", "50", "100"],
+    showTotal: total => `共 ${total} 条`,
+    ...this.props.pagination,
+    onChange: this.props.onPageChange,
+    onShowSizeChange: this.props.onPageChange
+  });
+
   renderNativeColumns = (tasks, loading) => {
     return (
-      <Table size="middle" dataSource={tasks} loading={loading} pagination={false} scroll={{y: 650}} rowKey="taskId">
+      <Table size="middle" dataSource={tasks} loading={loading} pagination={this.getPagination()} scroll={{y: "calc(100vh - 280px)"}} rowKey="taskId">
         <Column title="任务id" dataIndex="taskId" key="taskId" width="10%" />
         <Column title="AppId" dataIndex="appId" key="appId" width="10%"/>
         <Column title="AppVersion" dataIndex="appVersion" key="appVersion" width="10%"/>
@@ -71,7 +82,7 @@ class ListPage extends Component {
 
   renderWebColumns = (tasks, loading) => {
     return (
-      <Table size="middle" dataSource={tasks} loading={loading} pagination={false} scroll={{y: 650}} rowKey="taskId">
+      <Table size="middle" dataSource={tasks} loading={loading} pagination={this.getPagination()} scroll={{y: "calc(100vh - 280px)"}} rowKey="taskId">
         <Column title="设备标识" dataIndex="deviceId" key="deviceId" width="30%" />
         <Column title="日志来源" dataIndex="webSource" key="webSource" width="15%" render={this.renderColumnWebSource} />
         <Column title="环境信息" dataIndex="environment" key="environment" width="15%" render={this.renderColumnEnvironment} />

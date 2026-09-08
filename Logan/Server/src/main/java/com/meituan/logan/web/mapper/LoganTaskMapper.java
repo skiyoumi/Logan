@@ -17,4 +17,9 @@ public interface LoganTaskMapper {
     List<LoganTaskDTO> search(@Param("request") LoganTaskRequest request);
 
     List<LoganTaskDTO> queryLatest(@Param("limit") int limit);
+
+    long countPage(@Param("request") LoganTaskRequest request);
+
+    List<LoganTaskDTO> queryPage(@Param("request") LoganTaskRequest request,
+                               @Param("offset") long offset, @Param("limit") int limit);
 }

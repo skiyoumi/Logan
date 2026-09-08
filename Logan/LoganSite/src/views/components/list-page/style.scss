@@ -3,9 +3,13 @@
   flex: 1;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  min-width: 0;
 
   .table-container {
     flex: 1;
+    min-height: 0;
+    overflow: auto;
     padding: 32px;
     background-color: white;
     

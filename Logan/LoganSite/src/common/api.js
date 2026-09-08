@@ -15,6 +15,10 @@ const instance = axios.create({
 
 // Native Apis
 
+export function fetchNativeTaskPageApi(params) {
+  return instance.get("/logan/task/page.json", { params });
+}
+
 export function fetchNativeListInitData() {
   return instance.get("/logan/latest.json");
 }
