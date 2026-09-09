@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { every, some } from "lodash";
 import { parse } from "qs";
 import moment from "moment";
+import { nativeTextFilters } from "../../common/task-filters";
 import ListPage from "../components/list-page/index";
 import { updateFilterConditions, fetchTasks, fetchInitData, fetchPage } from "./redux/action";
 import {message} from "antd";
@@ -23,25 +23,23 @@ export class NativeList extends Component {
       params = parse(this.props.location.search, { ignoreQueryPrefix: true });
     }
     
-    const { deviceId, platform, beginTime, endTime } = params;
-    
-    if (some([deviceId, beginTime, endTime, platform], item => item === void 0) && !every([deviceId, beginTime, endTime, platform], item => item === void 0)) {
-      message.warn("url参数错误！获取默认日志列表");
-    }
-
-    updateFilterConditions({
-      deviceId: deviceId !== void 0 ? deviceId : "",
-      platform: platform !== void 0 ? Number.parseInt(platform) : 0,
-      beginTime: beginTime !== void 0 ? moment(Number.parseInt(beginTime)).valueOf() : moment().startOf("day").subtract(6, 'days').valueOf(),
-      endTime: endTime !== void 0 ? moment(Number.parseInt(endTime)).valueOf() : moment().startOf("day").valueOf()
+    const filters = {
+      deviceId: "", appId: "", appVersion: "", unionId: "", platform: 0,
+      beginTime: moment().startOf("day").subtract(6, "days").valueOf(),
+      endTime: moment().startOf("day").valueOf()
+    };
+    const query = {};
+    nativeTextFilters.forEach(key => {
+      if (typeof params[key] === "string") query[key] = params[key];
     });
-    if (deviceId && beginTime && endTime && platform) {
-      fetchTasks({
-        deviceId,
-        platform,
-        beginTime: moment(Number.parseInt(beginTime)).valueOf(),
-        endTime: moment(Number.parseInt(endTime)).valueOf()
-      });
+    ["platform", "beginTime", "endTime"].forEach(key => {
+      if (typeof params[key] === "string" && params[key] !== "" && Number.isFinite(Number(params[key]))) {
+        query[key] = Number(params[key]);
+      }
+    });
+    updateFilterConditions({ ...filters, ...query });
+    if (Object.keys(query).length) {
+      fetchTasks(query);
     } else {
       fetchInitData();
     }

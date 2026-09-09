@@ -6,12 +6,14 @@ import "antd/dist/antd.css";
 import "./style.scss";
 import ClickShare from "../../../../../common/components/ClickShare/ClickShare"
 import moment from "moment";
+import { stringify } from "qs";
+import { nativeTaskFilters } from "../../../../../common/task-filters";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { Header } = Layout;
 
-class HeaderBar extends Component {
+export class HeaderBar extends Component {
 
   static propTypes = {
     filterConditions: PropTypes.object,
@@ -32,11 +34,11 @@ class HeaderBar extends Component {
   };
 
   render() {
-    const { filterConditions, type } = this.props;
+    const { filterConditions, type, updateFilterConditions } = this.props;
     return (
-      <Header className="header">
+      <Header className={`header ${type === "native" ? "native-tasklist-header" : ""}`}>
         <div className="tasklist-filterbar-container">
-          <Input.Group compact className="filterbar-group">
+          <Input.Group compact={type !== "native"} className="filterbar-group">
             {
               type === "native" &&
               <Select
@@ -66,6 +68,7 @@ class HeaderBar extends Component {
               placeholder="设备编号"
               value={filterConditions.deviceId}
               onChange={this.handleDeviceIdChange}
+              onPressEnter={this.handleSearch}
               suffix={
                 filterConditions.deviceId ? (
                   <Icon
@@ -80,6 +83,20 @@ class HeaderBar extends Component {
                 )
               }
             />
+            {type === "native" && ["appId", "appVersion", "unionId"].map((key, index) => (
+              <Input
+                key={key}
+                data-test={key + "-input"}
+                className="filter-input"
+                placeholder={["AppId", "AppVersion", "unionId"][index]}
+                aria-label={["AppId", "AppVersion", "unionId"][index]}
+                maxLength={key === "appVersion" ? 64 : 256}
+                allowClear
+                value={filterConditions[key] || ""}
+                onChange={event => updateFilterConditions({ ...filterConditions, [key]: event.target.value })}
+                onPressEnter={this.handleSearch}
+              />
+            ))}
           </Input.Group>
           <Button data-test="search-button" icon="search" type="primary" onClick={this.handleSearch}>
             搜索
@@ -93,7 +110,7 @@ class HeaderBar extends Component {
   composeShareUrl = () => {
     const {filterConditions, type, pathname} = this.props;
     if (type === "native") {
-      return `${window.location.origin}/#${pathname}?deviceId=${filterConditions.deviceId}&beginTime=${moment(filterConditions.beginTime).valueOf()}&endTime=${moment(filterConditions.endTime).valueOf()}&platform=${filterConditions.platform}`
+      return `${window.location.origin}/#${pathname}?${stringify(nativeTaskFilters(filterConditions))}`
     } else {
       return `${window.location.origin}/#${pathname}?deviceId=${filterConditions.deviceId}&beginTime=${moment(filterConditions.beginTime).valueOf()}&endTime=${moment(filterConditions.endTime).valueOf()}`
     }
@@ -102,17 +119,12 @@ class HeaderBar extends Component {
   // event handlers
   handleSearch = () => {
     const { filterConditions, fetchTasks, type } = this.props;
-    if (filterConditions.deviceId === "") {
+    if (type !== "native" && filterConditions.deviceId === "") {
       message.error("必须填写设备编号才能进行查询！");
       return;
     }
     if (type === "native") {
-      fetchTasks({
-        deviceId: filterConditions.deviceId,
-        platform: filterConditions.platform,
-        beginTime: moment(filterConditions.beginTime).valueOf(),
-        endTime: moment(filterConditions.endTime).valueOf()
-      });
+      return fetchTasks(nativeTaskFilters(filterConditions));
     } else {
       fetchTasks({
         deviceId: filterConditions.deviceId,
@@ -144,10 +156,9 @@ class HeaderBar extends Component {
   handlePlatformChange = value => {
     const { filterConditions, updateFilterConditions } = this.props;
 
-    updateFilterConditions({
-      ...filterConditions,
-      platform: value
-    });
+    const nextFilters = { ...filterConditions, platform: value };
+    updateFilterConditions(nextFilters);
+    return this.props.fetchTasks(nativeTaskFilters(nextFilters));
   };
 
   handleTimeRangeChange = value => {

@@ -66,7 +66,7 @@ class ListPage extends Component {
 
   renderNativeColumns = (tasks, loading) => {
     return (
-      <Table size="middle" dataSource={tasks} loading={loading} pagination={this.getPagination()} scroll={{y: "calc(100vh - 280px)"}} rowKey="taskId">
+      <Table size="middle" dataSource={tasks} loading={loading} pagination={this.getPagination()} scroll={{y: "calc(100vh - 320px)"}} rowKey="taskId">
         <Column title="任务id" dataIndex="taskId" key="taskId" width="10%" />
         <Column title="AppId" dataIndex="appId" key="appId" width="10%"/>
         <Column title="AppVersion" dataIndex="appVersion" key="appVersion" width="10%"/>

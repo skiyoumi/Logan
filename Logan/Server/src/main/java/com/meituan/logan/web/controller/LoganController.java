@@ -56,7 +56,8 @@ public class LoganController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize,
             String deviceId, Long beginTime, Long endTime,
-            @RequestParam(defaultValue = "0") int platform) {
+            @RequestParam(defaultValue = "0") int platform,
+            String appId, String appVersion, String unionId) {
         if (page < 1 || pageSize < 1 || pageSize > 100 || platform < 0 || platform > 3) {
             return LoganResponse.badParam("invalid pagination or platform");
         }
@@ -67,6 +68,9 @@ public class LoganController {
         }
         LoganTaskRequest request = new LoganTaskRequest(StringUtils.trimToNull(deviceId), beginTime,
                 endTime == null ? null : endTime + DateTimeUtil.ONE_DAY, platform);
+        request.setAppId(StringUtils.trimToNull(appId));
+        request.setAppVersion(StringUtils.trimToNull(appVersion));
+        request.setUnionId(StringUtils.trimToNull(unionId));
         return LoganResponse.success(taskService.queryPage(request, page, pageSize));
     }
 

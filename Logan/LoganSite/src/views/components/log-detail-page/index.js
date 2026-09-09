@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {Button} from "antd";
-import {parse} from "qs";
+import {parse, stringify} from "qs";
 import {isEmpty, isNil} from "lodash";
 import FilterBar from "./components/filter-bar/index";
 import LogDetailCard from "./components/log-detail-card/index";
@@ -106,12 +106,7 @@ class LogDetailPage extends Component {
   handleBackToListButtonClicked = () => {
     const { type, history, nativeListFilterConditions, webListFilterConditions } = this.props;
     if (type === "native") {
-      const { deviceId, platform, beginTime, endTime } = nativeListFilterConditions;
-      if (((!isEmpty(deviceId) && !isNil(deviceId)) && !isNil(platform) && !isNil(beginTime) && !isNil(endTime))) {
-        history.push(`/native-list?deviceId=${deviceId}&beginTime=${beginTime}&endTime=${endTime}&platform=${platform}`)
-      } else {
-        history.push("/native-list")
-      }
+      history.push(`/native-list?${stringify(nativeListFilterConditions)}`);
     } else {      
       const { deviceId, beginTime, endTime } = webListFilterConditions;
       if (((!isEmpty(deviceId) && !isNil(deviceId)) && !isNil(beginTime) && !isNil(endTime))) {

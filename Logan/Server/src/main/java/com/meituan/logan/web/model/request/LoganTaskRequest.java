@@ -21,6 +21,12 @@ public class LoganTaskRequest {
 
     private Integer platform;
 
+    private String appId;
+
+    private String appVersion;
+
+    private String unionId;
+
     /**
      * 调整参数
      */

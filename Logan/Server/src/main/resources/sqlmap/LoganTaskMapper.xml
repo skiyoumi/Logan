@@ -59,6 +59,9 @@
     </select>
     <sql id="pageFilters">
         <where>
+            <if test="request.appId != null">AND app_id = #{request.appId}</if>
+            <if test="request.appVersion != null">AND app_version = #{request.appVersion}</if>
+            <if test="request.unionId != null">AND union_id = #{request.unionId}</if>
             <if test="request.deviceId != null">AND device_id = #{request.deviceId}</if>
             <if test="request.platform != null and request.platform != 0">AND platform = #{request.platform}</if>
             <if test="request.beginTime != null">AND add_time &gt;= #{request.beginTime}</if>

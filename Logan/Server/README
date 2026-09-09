@@ -94,7 +94,7 @@ Previously failed log details are not recovered by the schema change; upload tho
 8、Native task pagination: GET /logan/task/page.json?page=1&pageSize=20
 The response data contains { items, total, page, pageSize }, ordered by task ID descending.
 Page numbers start at 1; pageSize defaults to 20 and accepts 1 through 100.
-Optional filters: deviceId (exact match), platform (0/all, 1/Android, 2/iOS, 3/HarmonyOS),
+Optional filters: deviceId, appId, appVersion, unionId (optional exact matches, combined with AND), platform (0/all, 1/Android, 2/iOS, 3/HarmonyOS),
 beginTime and endTime (epoch milliseconds, filtering upload time).
 As with the existing search endpoint, one day is added to endTime to include the selected day.
 Omitted filters do not restrict the initial task list. The latest/search endpoints are unchanged.

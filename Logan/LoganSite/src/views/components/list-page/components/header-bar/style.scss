@@ -23,3 +23,23 @@
   flex: 1;
   min-width: 350px;
 }
+.listpage-container .header.native-tasklist-header {
+  height: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+  padding: 16px;
+  gap: 12px;
+  line-height: normal;
+
+  .tasklist-filterbar-container { margin: 0; min-width: 0; gap: 8px; align-items: flex-end; }
+  .filterbar-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+  }
+  .filterbar-group::before, .filterbar-group::after { display: none; }
+  .filterbar-group > * { float: none; margin-right: 0; border-radius: 4px; }
+  .ant-calendar-picker { grid-column: span 2; min-width: 0 !important; }
+  .filter-input { min-width: 0; width: 100%; }
+}

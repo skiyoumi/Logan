@@ -19,10 +19,10 @@ test("initial page gets a total beyond the former latest-20 limit", async () => 
 });
 
 test("paging keeps applied search conditions rather than unsubmitted edits", async () => {
-  state = { ...state, appliedFilters: { deviceId: "searched", platform: 3 }, filterConditions: { deviceId: "draft" } };
+  state = { ...state, appliedFilters: { deviceId: "searched", appId: "app", appVersion: "2.1.6", unionId: "用户+甲&乙", platform: 3 }, filterConditions: { deviceId: "draft" } };
   fetchNativeTaskPageApi.mockResolvedValue(result(2));
   await fetchPage(2, 20)(dispatch, getState);
-  expect(fetchNativeTaskPageApi).toHaveBeenCalledWith({ deviceId: "searched", platform: 3, page: 2, pageSize: 20 });
+  expect(fetchNativeTaskPageApi).toHaveBeenCalledWith({ deviceId: "searched", appId: "app", appVersion: "2.1.6", unionId: "用户+甲&乙", platform: 3, page: 2, pageSize: 20 });
 });
 
 test("new searches and page-size changes start at page one", async () => {
