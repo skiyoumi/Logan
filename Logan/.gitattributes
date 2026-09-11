@@ -1,0 +1,2 @@
+# Keep the WSL launcher executable by Bash after Windows checkouts.
+publish.sh text eol=lf

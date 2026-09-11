@@ -28,3 +28,66 @@
 - maven构建应用镜像 <https://developer.aliyun.com/article/65274>
 - awesome-compose,样例配置<https://github.com/docker/awesome-compose>
 - csdn <http://t.csdn.cn/vpeoh>
+
+## 一键构建并发布镜像
+
+在 `Logan` 目录执行，只需传入本次版本号（例如下一个版本 `1.5.0`）：
+
+```powershell
+.\publish.ps1 1.5.0
+```
+
+WSL 中可使用同一个入口，参数与 PowerShell 完全一致：
+
+```bash
+cd /mnt/c/project/ai/Logan/Logan
+bash ./publish.sh 1.5.0
+```
+
+WSL 入口优先使用 `pwsh`；没有安装时调用 Windows 的 `powershell.exe`，使用 Windows Docker CLI 和已有登录信息。如果 Windows 提示脚本执行策略限制，可以运行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\publish.ps1 1.5.0
+```
+
+脚本会自动定位同目录的 `docker-compose.yaml`，以固定项目名 `logan` 构建 backend、frontend，检查本地镜像，打版本标签，然后推送到现有阿里云仓库：
+
+```text
+crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:backend-1.5.0
+crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com/skiyoumi/logan:frontend-1.5.0
+```
+
+首次使用或登录过期时，在执行脚本所用的 PowerShell 中登录一次，按 Docker 提示输入账号和密码：
+
+```powershell
+docker login crpi-1a0zvjxwrmr36txn.cn-hongkong.personal.cr.aliyuncs.com
+```
+
+常用选项（WSL 的 `publish.sh` 接受相同参数）：
+
+```powershell
+# 预览完整命令，不执行构建、打标签或推送
+.\publish.ps1 1.5.0 -DryRun
+
+# 只发布前端
+.\publish.ps1 1.5.0 -Service frontend
+
+# 只发布后端
+.\publish.ps1 1.5.0 -Service backend
+
+# 已构建成功，使用本地 latest 镜像重新打标签并推送
+.\publish.ps1 1.5.0 -SkipBuild
+
+# 构建并打标签，暂不推送
+.\publish.ps1 1.5.0 -SkipPush
+
+# 重新执行构建步骤，不使用构建缓存
+.\publish.ps1 1.5.0 -NoCache
+
+# 指定其他仓库
+.\publish.ps1 1.5.0 -Registry registry.example.com -Repository team/logan
+```
+
+任一步骤失败都会停止并返回非零退出码。两个镜像分别推送；如果其中一个推送失败，已成功的镜像仍然保留在仓库，可排除错误后以相同版本加 `-SkipBuild` 重试。该选项使用现有 `latest` 镜像，不会把后续源码修改重新构建进去。
+
+每次发布请使用新的版本号；沿用已有版本号会更新该标签。日常构建保留 Docker 缓存，无需先执行 `compose down` 或 `docker image prune -a`。脚本只负责构建和推送镜像，服务器更新仍需拉取新版本并重建对应服务。
