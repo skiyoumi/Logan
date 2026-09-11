@@ -18,6 +18,7 @@ import {message} from "antd";
 export function mapStateToProps(state) {
   return {
     ...state.nativeLogDetail,
+    listView: state.nativeList.listView,
     nativeListFilterConditions: state.nativeList.appliedFilters
   };
 }

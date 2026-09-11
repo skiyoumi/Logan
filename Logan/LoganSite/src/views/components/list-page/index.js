@@ -1,3 +1,5 @@
+import {canRestoreListView, getListUrl} from "../../../common/list-view";
+import {stringify} from "qs";
 import React, { Component } from "react";
 import { Table, Icon, Button } from "antd";
 import moment from "moment";
@@ -28,6 +30,41 @@ const ICON_BY_PLATFORM = {
 };
 
 class ListPage extends Component {
+  constructor(props) {
+    super(props);
+    this.tableContainer = React.createRef();
+    this.state = {
+      pagination: canRestoreListView(props) ? props.listView.pagination : {current: 1, pageSize: 20}
+    };
+  }
+
+  componentDidMount() {
+    if (canRestoreListView(this.props)) {
+      const {scrollTop, scrollLeft, containerScrollTop} = this.props.listView;
+      const container = this.tableContainer.current;
+      const body = container.querySelector(".ant-table-body");
+      if (body) {
+        body.scrollTop = scrollTop;
+        body.scrollLeft = scrollLeft;
+      }
+      container.scrollTop = containerScrollTop;
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    // Web logs are paginated in the table; new search results start on page one.
+    if (!this.props.onPageChange && prevProps.tasks !== this.props.tasks && this.state.pagination.current !== 1) {
+      this.setState({pagination: {...this.state.pagination, current: 1}});
+    }
+  }
+
+  handlePageChange = (page, pageSize) => {
+    if (this.props.onPageChange) return this.props.onPageChange(page, pageSize);
+    this.setState(({pagination}) => ({pagination: {
+      current: pageSize === pagination.pageSize ? page : 1, pageSize
+    }}));
+  };
+
   render() {
     const { filterConditions, tasks, updateFilterConditions, fetchTasks, loading, type } = this.props;
     return (
@@ -38,7 +75,7 @@ class ListPage extends Component {
           fetchTasks={fetchTasks}
           type={type}
         />
-        <div className={"table-container"}>
+        <div className={"table-container"} ref={this.tableContainer}>
             {
               (() => {
                 if (type === "native") {
@@ -59,9 +96,10 @@ class ListPage extends Component {
     showQuickJumper: true,
     pageSizeOptions: ["10", "20", "50", "100"],
     showTotal: total => `共 ${total} 条`,
+    ...this.state.pagination,
     ...this.props.pagination,
-    onChange: this.props.onPageChange,
-    onShowSizeChange: this.props.onPageChange
+    onChange: this.handlePageChange,
+    onShowSizeChange: this.handlePageChange
   });
 
   renderNativeColumns = (tasks, loading) => {
@@ -131,8 +169,19 @@ class ListPage extends Component {
   };
 
   toDetail = tasks => () => {
-    const {detailUrlPrefix} = this.props;
-    this.props.history.push(`${detailUrlPrefix}?tasks=${tasks}`);
+    const {detailUrlPrefix, history, location, updateListView} = this.props;
+    if (updateListView && location) {
+      const container = this.tableContainer.current;
+      const body = container.querySelector(".ant-table-body");
+      const {current, pageSize} = this.getPagination();
+      updateListView({
+        url: getListUrl(location), tasks: String(tasks), pagination: {current, pageSize},
+        scrollTop: body ? body.scrollTop : 0,
+        scrollLeft: body ? body.scrollLeft : 0,
+        containerScrollTop: container.scrollTop
+      });
+    }
+    history.push(`${detailUrlPrefix}?${stringify({tasks})}`);
   };
 }
 

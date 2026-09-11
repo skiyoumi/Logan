@@ -1,3 +1,4 @@
+import {canRestoreListView, updateListView} from "../../common/list-view";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { every, some } from "lodash";
@@ -16,6 +17,9 @@ export class WebList extends Component {
   }
 
   componentDidMount() {
+    const restore = canRestoreListView(this.props);
+    if (this.props.listView) this.props.updateListView(null);
+    if (restore) return;
     const { updateFilterConditions, fetchTasks, fetchInitData } = this.props;
 
     let params = {};
@@ -65,6 +69,7 @@ export function mapStateToProps(state) {
 
 export function mapDispatchToProps(dispatch) {
   return {
+    updateListView: listView => dispatch(updateListView("web", listView)),
     updateFilterConditions: newFilterConditions => dispatch(updateFilterConditions(newFilterConditions)),
     fetchTasks: (filterConditions) => dispatch(fetchTasks(filterConditions)),
     fetchInitData: () => dispatch(fetchInitData())

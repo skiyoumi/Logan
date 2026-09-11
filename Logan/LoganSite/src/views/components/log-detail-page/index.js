@@ -104,7 +104,12 @@ class LogDetailPage extends Component {
   };
 
   handleBackToListButtonClicked = () => {
-    const { type, history, nativeListFilterConditions, webListFilterConditions } = this.props;
+    const { type, history, nativeListFilterConditions, webListFilterConditions, listView, location } = this.props;
+    const {tasks} = parse(location ? location.search : "", {ignoreQueryPrefix: true});
+    if (listView && listView.tasks === tasks) {
+      history.push(listView.url);
+      return;
+    }
     if (type === "native") {
       history.push(`/native-list?${stringify(nativeListFilterConditions)}`);
     } else {      

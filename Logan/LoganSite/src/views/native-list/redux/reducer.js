@@ -1,3 +1,4 @@
+import {UPDATE_LIST_VIEW} from "../../../common/list-view";
 import {initialState} from "./initial-state";
 
 
@@ -10,6 +11,11 @@ export const NATIVE_CHANGE_LOADING = "NATIVE_CHANGE_LOADING";
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case UPDATE_LIST_VIEW:
+      if (action.listType !== "native") return state;
+      return { ...state, listView: action.listView,
+        ...(action.listView ? {requestId: 0, loading: false} : {}) };
+
     case NATIVE_PAGE_REQUEST:
       return { ...state, loading: true, requestId: action.requestId };
     case NATIVE_PAGE_SUCCESS:

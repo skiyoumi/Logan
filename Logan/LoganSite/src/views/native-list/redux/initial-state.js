@@ -11,6 +11,7 @@ export const initialState = {
     endTime: moment().startOf("day")
   },
   tasks: [],
+  listView: null,
   pagination: { current: 1, pageSize: 20, total: 0 },
   appliedFilters: {},
   requestId: 0,

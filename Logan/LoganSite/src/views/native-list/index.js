@@ -1,3 +1,4 @@
+import {canRestoreListView, updateListView} from "../../common/list-view";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { parse } from "qs";
@@ -16,6 +17,9 @@ export class NativeList extends Component {
   }
 
   componentDidMount() {
+    const restore = canRestoreListView(this.props);
+    if (this.props.listView) this.props.updateListView(null);
+    if (restore) return;
     const { updateFilterConditions, fetchTasks, fetchInitData } = this.props;
 
     let params = {};
@@ -66,6 +70,7 @@ export function mapStateToProps(state) {
 
 export function mapDispatchToProps(dispatch) {
   return {
+    updateListView: listView => dispatch(updateListView("native", listView)),
     updateFilterConditions: newFilterConditions => dispatch(updateFilterConditions(newFilterConditions)),
     fetchTasks: (filterConditions) => dispatch(fetchTasks(filterConditions)),
     fetchInitData: () => dispatch(fetchInitData()),

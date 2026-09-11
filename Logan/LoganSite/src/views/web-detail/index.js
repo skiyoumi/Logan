@@ -18,6 +18,7 @@ import {message} from "antd";
 export function mapStateToProps(state) {
   return {
     ...state.webLogDetail,
+    listView: state.webList.listView,
     webListFilterConditions: state.webList.filterConditions
   };
 }

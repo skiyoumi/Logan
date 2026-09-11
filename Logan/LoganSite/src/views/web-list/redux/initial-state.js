@@ -7,5 +7,6 @@ export const initialState = {
     endTime: moment().startOf("day")
   },
   tasks: [],
+  listView: null,
   loading: false
 };
