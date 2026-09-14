@@ -27,6 +27,15 @@ public class LoganTaskRequest {
 
     private String unionId;
 
+    /** Returns a LIKE pattern only when the user explicitly supplies a wildcard. */
+    public String getUnionIdPattern() {
+        if (unionId == null || (unionId.indexOf('*') < 0 && unionId.indexOf('%') < 0)) {
+            return null;
+        }
+        // Use an explicit SQL escape character so underscores and backslashes in IDs stay literal.
+        return unionId.replace("!", "!!").replace("_", "!_").replace('*', '%');
+    }
+
     /**
      * 调整参数
      */

@@ -54,3 +54,10 @@ test("failure ends loading and preserves the previous page", async () => {
   expect(state.loading).toBe(false);
   expect(state.tasks).toEqual([{ taskId: 9 }]);
 });
+
+test("paging preserves the submitted unionId wildcard pattern", async () => {
+  state = { ...state, appliedFilters: {unionId: "*138_张三%"}, filterConditions: {unionId: "draft"} };
+  fetchNativeTaskPageApi.mockResolvedValue(result(2));
+  await fetchPage(2, 20)(dispatch, getState);
+  expect(fetchNativeTaskPageApi).toHaveBeenCalledWith({unionId: "*138_张三%", page: 2, pageSize: 20});
+});

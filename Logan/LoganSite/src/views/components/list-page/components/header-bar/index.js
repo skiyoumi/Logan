@@ -88,7 +88,8 @@ export class HeaderBar extends Component {
                 key={key}
                 data-test={key + "-input"}
                 className="filter-input"
-                placeholder={["AppId", "AppVersion", "unionId"][index]}
+                placeholder={["AppId", "AppVersion", "unionId（支持 *、%）"][index]}
+                title={key === "unionId" ? "* 或 % 匹配任意文本，如 *张三*、138*；不带通配符精确匹配，下划线按普通字符查询" : undefined}
                 aria-label={["AppId", "AppVersion", "unionId"][index]}
                 maxLength={key === "appVersion" ? 64 : 256}
                 allowClear

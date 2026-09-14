@@ -37,6 +37,11 @@
     <servlet>
         <servlet-name>mvc-dispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- MVC beans already live in the root context; do not create a second scheduler/services. -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value></param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 

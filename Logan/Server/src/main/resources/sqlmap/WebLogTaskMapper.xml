@@ -23,7 +23,7 @@
     </insert>
 
     <update id="updateContent" parameterType="map">
-        UPDATE web_task SET content =#{content} WHERE id = #{taskId}
+        UPDATE web_task SET content =#{content}, add_time =#{addTime} WHERE id = #{taskId}
     </update>
 
     <select id="exist" parameterType="map" resultMap="resultMap">

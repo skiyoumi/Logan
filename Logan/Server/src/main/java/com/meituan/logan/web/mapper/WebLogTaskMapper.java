@@ -9,7 +9,8 @@ public interface WebLogTaskMapper {
 
     void insert(@Param("task") WebLogTaskDTO taskDTO);
 
-    void updateContent(@Param("taskId") long taskId, @Param("content") String content);
+    void updateContent(@Param("taskId") long taskId, @Param("content") String content,
+                       @Param("addTime") long addTime);
 
     WebLogTaskDTO exist(@Param("logDate") long logDate, @Param("deviceId") String deviceId,
             @Param("pageNum") int pageNum);

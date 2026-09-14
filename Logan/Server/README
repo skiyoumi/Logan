@@ -17,7 +17,9 @@ CREATE TABLE `logan_task` (
   `status` tinyint(11) unsigned NOT NULL DEFAULT '0' COMMENT '0未分析过,1分析过',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_update_time` (`update_time`)
+  KEY `idx_update_time` (`update_time`),
+  KEY `idx_retention_add_time` (`add_time`, `id`),
+  KEY `idx_log_file_name` (`log_file_name`(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='上报日志任务表';
 
 CREATE TABLE `logan_log_detail` (
@@ -94,8 +96,47 @@ Previously failed log details are not recovered by the schema change; upload tho
 8、Native task pagination: GET /logan/task/page.json?page=1&pageSize=20
 The response data contains { items, total, page, pageSize }, ordered by task ID descending.
 Page numbers start at 1; pageSize defaults to 20 and accepts 1 through 100.
-Optional filters: deviceId, appId, appVersion, unionId (optional exact matches, combined with AND), platform (0/all, 1/Android, 2/iOS, 3/HarmonyOS),
+Optional filters: deviceId, appId, appVersion (exact matches), unionId (exact or wildcard match; see below), platform (0/all, 1/Android, 2/iOS, 3/HarmonyOS),
 beginTime and endTime (epoch milliseconds, filtering upload time).
 As with the existing search endpoint, one day is added to endTime to include the selected day.
 Omitted filters do not restrict the initial task list. The latest/search endpoints are unchanged.
 Rebuild both backend and frontend together for the paginated native task list; no new migration is required.
+
+9、unionId wildcard search on /logan/task/page.json: * and % each match zero or more characters.
+Examples: *张三* (contains), 138* (prefix), *张三 (suffix), 138*张* (multiple segments).
+Without * or %, unionId remains an exact match. Underscores, backslashes, plus signs,
+and ampersands remain literal, including inside wildcard patterns. Empty input omits the filter.
+All filters combine with AND; count and page queries use the same bound pattern.
+URL-encode query values (for example, %张三% becomes %25%E5%BC%A0%E4%B8%89%25).
+Deploy the backend update to enable matching; the frontend update adds input guidance.
+No database migration is required.
+
+10、Uploaded log retention defaults to 3 days (rolling 24-hour periods), measured from
+the server upload time (`add_time`), not the client log date. Re-uploading an existing
+H5 page refreshes its upload time. The exact cutoff is retained; only older logs expire.
+The first cleanup runs 60 seconds after startup, then one hour after each run finishes.
+It deletes native files under the backend working directory's `logfile/`, expired native/H5
+tasks and their parsed details, and old unreferenced files (using file modification time).
+Missing files do not block database cleanup. File deletion failures preserve tasks for
+retry; cleanup does not recurse into directories or follow symbolic links. Recently uploaded
+tasks are preserved even if their client log date or file modification time is old.
+Service runtime logs (Log4j/Tomcat/Docker) are separate from these uploaded logs.
+
+Set `LOGAN_RETENTION_DAYS=14` in the backend environment to keep 14 days. Docker Compose
+reads this from the shell or a `Logan/.env` file. For non-Docker deployments, the environment
+variable, JVM option `-Dlogan.retention-days=14`, or `resources/retention.properties` can be used
+(JVM option takes precedence). Restart/recreate the backend after changing configuration.
+The number of days must be a positive integer; invalid values fail startup before cleanup.
+The initial delay and interval can also be set with JVM options
+`-Dlogan.retention.initial-delay-ms=60000` and `-Dlogan.retention.cleanup-interval-ms=3600000`.
+
+Before deploying, run `docker compose run --rm db-migrate` from the Logan directory to apply
+migration 3 (retention indexes only), then rebuild/recreate the backend. Existing expired
+uploads are included in the first cleanup. No frontend rebuild is needed for this feature.
+File deletion releases filesystem space. InnoDB normally reuses deleted database space
+internally; the size of existing database files may not shrink immediately.
+
+Validation: `mvn test -DforkCount=0`. Optional MySQL integration tests require an isolated
+database named `logan_retention_test` via `LOGAN_RETENTION_TEST_JDBC_URL`,
+`LOGAN_RETENTION_TEST_DB_USER` and `LOGAN_RETENTION_TEST_DB_PASSWORD`; the test recreates
+tables in that database. Never point these variables at an application database.

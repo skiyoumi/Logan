@@ -3,6 +3,8 @@ services:
   backend:
     build:
       context: Server
+    environment:
+      LOGAN_RETENTION_DAYS: ${LOGAN_RETENTION_DAYS:-3}
     restart: always
     networks:
       - logan-network

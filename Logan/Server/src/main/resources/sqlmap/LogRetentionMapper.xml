@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.logan.web.mapper.LogRetentionMapper">
+    <select id="expiredNativeTasks" resultType="com.meituan.logan.web.dto.LoganTaskDTO">
+        SELECT id, log_file_name AS logFileName FROM logan_task
+        WHERE add_time &lt; #{cutoff} AND id &gt; #{afterId} ORDER BY id LIMIT #{limit}
+    </select>
+    <select id="expiredWebTasks" resultType="long">
+        SELECT id FROM web_task
+        WHERE add_time &lt; #{cutoff} AND id &gt; #{afterId} ORDER BY id LIMIT #{limit}
+    </select>
+
+    <!-- Each statement atomically removes the selected tasks and their parsed details. -->
+    <delete id="deleteNativeTasks">
+        DELETE task, detail FROM logan_task task
+        LEFT JOIN logan_log_detail detail ON detail.task_id = task.id
+        WHERE task.add_time &lt; #{cutoff} AND task.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    <delete id="deleteWebTasks">
+        DELETE task, detail FROM web_task task
+        LEFT JOIN web_detail detail ON detail.task_id = task.id
+        WHERE task.add_time &lt; #{cutoff} AND task.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    <select id="countFileReferences" resultType="int">
+        SELECT COUNT(*) FROM logan_task WHERE log_file_name = #{fileName} AND add_time &gt;= #{cutoff}
+    </select>
+
+    <!-- Also reclaim details left by legacy deletes or asynchronous parsing during cleanup. -->
+    <delete id="deleteOrphanNativeDetails">
+        DELETE FROM logan_log_detail
+        WHERE NOT EXISTS (SELECT 1 FROM logan_task WHERE logan_task.id = logan_log_detail.task_id)
+        LIMIT #{limit}
+    </delete>
+    <delete id="deleteOrphanWebDetails">
+        DELETE FROM web_detail
+        WHERE NOT EXISTS (SELECT 1 FROM web_task WHERE web_task.id = web_detail.task_id)
+        LIMIT #{limit}
+    </delete>
+</mapper>

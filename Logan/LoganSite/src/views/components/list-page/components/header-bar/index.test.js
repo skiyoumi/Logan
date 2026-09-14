@@ -33,3 +33,10 @@ test("share links round trip Chinese, plus and ampersand in search values", () =
   expect(parse(bar.composeShareUrl().split("?")[1])).toEqual({ appId: "app", appVersion: "2.1.6",
     unionId: "用户+甲&乙", platform: "0", beginTime: "1000", endTime: "2000" });
 });
+
+test.each(["*张三*", "%张三%", "138_张*", "*用户+甲&乙%"])("unionId pattern %s survives search and sharing", unionId => {
+  const bar = create({unionId: " " + unionId + " "});
+  bar.handleSearch();
+  expect(bar.props.fetchTasks).toHaveBeenCalledWith(expect.objectContaining({unionId}));
+  expect(parse(bar.composeShareUrl().split("?")[1]).unionId).toBe(unionId);
+});

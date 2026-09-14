@@ -15,14 +15,14 @@ describe("log type data adapter", () => {
       time: 111111,
       logType: {
         type: 1,
-        logTypeName: "日志类型1",
+        logTypeName: "exception catch 日志",
         displayColor: "#32CD32"
       }
     }]);
   });
 
   it("should return proper web log type information", () => {
-    const ret = convertBriefsToMinimapBriefs([{logType: 1, id: 1, logTime: 111111}], "native");
+    const ret = convertBriefsToMinimapBriefs([{logType: 1, detailId: 1, logTime: 111111}], "web");
     expect(ret).toEqual([{
       id: 1,
       time: 111111,
@@ -35,14 +35,14 @@ describe("log type data adapter", () => {
   });
 
   it("should return unknown log type information", () => {
-    const ret = convertBriefsToMinimapBriefs([{logType: 1, detailId: 1, logTime: 111111}], "web");
+    const ret = convertBriefsToMinimapBriefs([{logType: 999, detailId: 1, logTime: 111111}], "web");
     expect(ret).toEqual([{
       id: 1,
       time: 111111,
       logType: {
-        type: 1,
-        logTypeName: "日志类型1",
-        displayColor: "#32CD32"
+        type: 0,
+        logTypeName: "未知日志",
+        displayColor: "#000000"
       }
     }]);
   })

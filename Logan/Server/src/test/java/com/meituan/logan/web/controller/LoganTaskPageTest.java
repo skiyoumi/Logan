@@ -69,4 +69,21 @@ public class LoganTaskPageTest {
         assertEquals(45, controller.page(2, 20, null, null, null, 0, null, null, null).getData().getTotal());
         assertEquals(3, controller.page(3, 10, " device ", 1L, 2L, 3, " com.example ", " 2.1.6 ", " 用户+甲&乙 ").getData().getPage());
     }
+    @Test
+    public void wildcardUnionIdIsTrimmedAndPreservedForPagedQueries() throws Exception {
+        LoganController controller = new LoganController();
+        Field field = LoganController.class.getDeclaredField("taskService");
+        field.setAccessible(true);
+        field.set(controller, Proxy.newProxyInstance(LoganTaskService.class.getClassLoader(),
+                new Class<?>[]{LoganTaskService.class}, (proxy, method, args) -> {
+                    LoganTaskRequest request = (LoganTaskRequest) args[0];
+                    assertEquals("*138_张三%", request.getUnionId());
+                    assertEquals("%138!_张三%", request.getUnionIdPattern());
+                    assertEquals(2, args[1]);
+                    assertEquals(20, args[2]);
+                    return new LoganTaskPageModel(Collections.emptyList(), 25, 2, 20);
+                }));
+        assertEquals(200, controller.page(2, 20, null, null, null, 0,
+                null, null, " *138_张三% ").getCode());
+    }
 }
